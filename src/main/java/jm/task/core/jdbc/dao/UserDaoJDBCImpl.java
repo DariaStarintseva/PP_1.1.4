@@ -26,35 +26,54 @@ public class UserDaoJDBCImpl implements UserDao {
 
     }
 
-
+private static Connection connection;
 
     public void createUsersTable() {
+
         try(Connection connection = Util.getConnection()) {
+            connection.setAutoCommit(false);
             Statement statement = connection.createStatement();
             statement.executeUpdate(create);
+            connection.commit();
         } catch (SQLException e) {
-            e.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 
     public void dropUsersTable() {
         try(Connection connection = Util.getConnection()) {
+            connection.setAutoCommit(false);
             Statement statement = connection.createStatement();
             statement.executeUpdate(drop);
+            connection.commit();
         } catch (SQLException e) {
-            e.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 
     public void saveUser(String name, String lastName, byte age) {
         try(Connection connection = Util.getConnection()) {
+            connection.setAutoCommit(false);
             PreparedStatement prepareStatement = connection.prepareStatement(save);
             prepareStatement.setString(1, name);
             prepareStatement.setString(2, lastName);
             prepareStatement.setByte(3, age);
             prepareStatement.executeUpdate();
+            connection.commit();
         } catch (SQLException e) {
-            e.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
         }
         System.out.println("User с именем – " + name + " добавлен в базу данных");
     }
@@ -62,11 +81,17 @@ public class UserDaoJDBCImpl implements UserDao {
     public void removeUserById(long id) {
 
         try(Connection connection = Util.getConnection()) {
+            connection.setAutoCommit(false);
             PreparedStatement prepareStatement = connection.prepareStatement(delete);
             prepareStatement.setLong(1, id);
             prepareStatement.executeUpdate();
+            connection.commit();
         } catch (SQLException e) {
-            e.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 
@@ -91,7 +116,6 @@ public class UserDaoJDBCImpl implements UserDao {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        System.out.println(list);
         return list;
 
     }
@@ -99,10 +123,16 @@ public class UserDaoJDBCImpl implements UserDao {
     public void cleanUsersTable() {
 
         try(Connection connection = Util.getConnection()) {
+            connection.setAutoCommit(false);
             Statement statement = connection.createStatement();
             statement.executeUpdate(clean);
+            connection.commit();
         } catch (SQLException e) {
-            e.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 }
